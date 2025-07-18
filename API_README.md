@@ -78,6 +78,36 @@ GET /api/v1/score/range?user_id=user_001&start_date=2025-07-03&end_date=2025-07-
 GET /api/v1/score/available-dimensions?user_id=user_001
 ```
 
+### 查询有效积分
+```bash
+GET /api/v1/scores/valid?user_id=user_001
+```
+
+### 查询积分历史
+```bash
+GET /api/v1/scores/history?user_id=user_001&start_date=2025-07-01&end_date=2025-07-31&include_expired=false
+```
+
+### 查询即将过期积分
+```bash
+GET /api/v1/scores/expiring?user_id=user_001&days_ahead=30
+```
+
+### 查询用户等级统计
+```bash
+GET /api/v1/scores/tier-stats?user_id=user_001
+```
+
+### 查询月度汇总
+```bash
+GET /api/v1/scores/summary/2025/7?user_id=user_001
+```
+
+### 检查并标记过期积分
+```bash
+POST /api/v1/scores/check-expiration
+```
+
 ## 测试API
 
 运行测试脚本验证多用户功能：

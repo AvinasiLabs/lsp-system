@@ -92,6 +92,9 @@ python scripts/test_score_calculation.py
 
 # 添加用户支持（如果还没有运行过）
 python scripts/add_user_id_migration.py
+
+# 添加积分过期字段（Issue #1）
+python scripts/add_score_expiration_fields.py
 ```
 
 ### 5. 启动API服务器
@@ -102,6 +105,9 @@ python start_server.py
 
 # 测试API端点
 python scripts/test_api_endpoints.py
+
+# 测试积分持久化功能
+python scripts/test_score_persistence.py
 ```
 
 访问 http://localhost:8000/docs 查看API文档
@@ -118,16 +124,19 @@ python scripts/test_api_endpoints.py
 - ✅ REST API接口（FastAPI）
 - ✅ 可选认证系统（JWT）
 - ✅ API文档（Swagger UI）
+- ✅ 积分持久化存储
+- ✅ 积分过期机制（6个月）
+- ✅ 积分查询API
 
 ### 待开发
 
 - [ ] 剩余4个维度（环境、社交、认知、预防）
 - [ ] 连锁反应机制
-- [ ] Tier等级系统
-- [ ] 积分过期机制
+- [ ] 完整Tier等级系统
 - [ ] 作弊检测系统
 - [ ] 数据可视化
 - [ ] 实时积分推送
+- [ ] 用户注册/登录（真实认证）
 
 ## 数据说明
 
