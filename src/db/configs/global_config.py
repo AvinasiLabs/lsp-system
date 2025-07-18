@@ -1,4 +1,4 @@
-from configs.config_cls import (
+from .config_cls import (
     LoggerConfig,
     PostgreSQLConfig
 )
