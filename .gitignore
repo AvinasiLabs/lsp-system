@@ -75,3 +75,7 @@ coverage.xml
 docs/_build/
 docs/_static/
 docs/_templates/
+
+# Editor specific
+.history/
+.claude/
