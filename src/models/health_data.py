@@ -44,6 +44,7 @@ class HealthDataType(str, Enum):
 class HealthDataRecord(BaseModel):
     """健康数据记录模型"""
     id: int
+    user_id: str = "default_user"
     type: str
     source_name: Optional[str] = None
     source_version: Optional[str] = None
@@ -77,7 +78,7 @@ class DailyHealthSummary(BaseModel):
     
 class HealthDataQuery(BaseModel):
     """健康数据查询参数"""
-    user_id: Optional[str] = None  # 预留用户ID
+    user_id: str = "default_user"
     start_date: datetime
     end_date: datetime
     data_types: Optional[List[HealthDataType]] = None

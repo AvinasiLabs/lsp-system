@@ -31,8 +31,8 @@ class HealthDataService:
         Returns:
             健康数据记录列表
         """
-        conditions = ["start_date >= %s", "end_date <= %s"]
-        params = [query.start_date, query.end_date]
+        conditions = ["user_id = %s", "start_date >= %s", "end_date <= %s"]
+        params = [query.user_id, query.start_date, query.end_date]
         
         # 如果指定了数据类型
         if query.data_types:
@@ -57,6 +57,7 @@ class HealthDataService:
         for row in results:
             record = HealthDataRecord(
                 id=row[0],
+                user_id=row[11],  # user_id在最后
                 type=row[1],
                 source_name=row[2],
                 source_version=row[3],
@@ -72,11 +73,12 @@ class HealthDataService:
         
         return records
     
-    def get_daily_summary(self, date: datetime) -> DailyHealthSummary:
+    def get_daily_summary(self, user_id: str, date: datetime) -> DailyHealthSummary:
         """
         获取指定日期的健康数据汇总
         
         Args:
+            user_id: 用户ID
             date: 日期
             
         Returns:
@@ -88,13 +90,14 @@ class HealthDataService:
         summary = DailyHealthSummary(date=date)
         
         # 获取睡眠数据
-        sleep_data = self._get_sleep_data(start_date, end_date)
+        sleep_data = self._get_sleep_data(user_id, start_date, end_date)
         if sleep_data:
             summary.sleep_hours = sleep_data.get('total_hours', 0)
             # TODO: 深度睡眠和REM睡眠需要更详细的数据
         
         # 获取步数
         steps = self._get_aggregated_value(
+            user_id,
             HealthDataType.STEP_COUNT,
             start_date,
             end_date,
@@ -104,6 +107,7 @@ class HealthDataService:
         
         # 获取活动能量
         active_energy = self._get_aggregated_value(
+            user_id,
             HealthDataType.ACTIVE_ENERGY_BURNED,
             start_date,
             end_date,
@@ -113,6 +117,7 @@ class HealthDataService:
         
         # 获取运动时间
         exercise_time = self._get_aggregated_value(
+            user_id,
             HealthDataType.EXERCISE_TIME,
             start_date,
             end_date,
@@ -121,11 +126,12 @@ class HealthDataService:
         summary.exercise_minutes = int(exercise_time) if exercise_time else None
         
         # 获取站立小时数
-        stand_hours = self._get_stand_hours(start_date, end_date)
+        stand_hours = self._get_stand_hours(user_id, start_date, end_date)
         summary.stand_hours = stand_hours
         
         # 获取心率数据
         avg_hr = self._get_aggregated_value(
+            user_id,
             HealthDataType.HEART_RATE,
             start_date,
             end_date,
@@ -134,6 +140,7 @@ class HealthDataService:
         summary.avg_heart_rate = avg_hr
         
         resting_hr = self._get_aggregated_value(
+            user_id,
             HealthDataType.RESTING_HEART_RATE,
             start_date,
             end_date,
@@ -143,6 +150,7 @@ class HealthDataService:
         
         # 获取HRV
         hrv = self._get_aggregated_value(
+            user_id,
             HealthDataType.HEART_RATE_VARIABILITY,
             start_date,
             end_date,
@@ -152,6 +160,7 @@ class HealthDataService:
         
         # 获取饮水量
         water = self._get_aggregated_value(
+            user_id,
             HealthDataType.DIETARY_WATER,
             start_date,
             end_date,
@@ -161,11 +170,12 @@ class HealthDataService:
         
         return summary
     
-    def get_date_range_summary(self, start_date: datetime, end_date: datetime) -> Dict[str, DailyHealthSummary]:
+    def get_date_range_summary(self, user_id: str, start_date: datetime, end_date: datetime) -> Dict[str, DailyHealthSummary]:
         """
         获取日期范围内的每日汇总
         
         Args:
+            user_id: 用户ID
             start_date: 开始日期
             end_date: 结束日期
             
@@ -176,13 +186,13 @@ class HealthDataService:
         current_date = start_date
         
         while current_date <= end_date:
-            summary = self.get_daily_summary(current_date)
+            summary = self.get_daily_summary(user_id, current_date)
             summaries[current_date.strftime('%Y-%m-%d')] = summary
             current_date += timedelta(days=1)
         
         return summaries
     
-    def _get_sleep_data(self, start_date: datetime, end_date: datetime) -> Optional[Dict]:
+    def _get_sleep_data(self, user_id: str, start_date: datetime, end_date: datetime) -> Optional[Dict]:
         """获取睡眠数据"""
         # 注意：睡眠数据可能跨越日期边界
         # 我们需要获取在指定日期内结束的睡眠记录
@@ -193,13 +203,14 @@ class HealthDataService:
             SUM(EXTRACT(EPOCH FROM (end_date - start_date)) / 3600) as total_hours
         FROM apple_healthkit
         WHERE type = %s
+        AND user_id = %s
         AND end_date > %s
         AND start_date < %s
         """
         
         result = self.db_pool._execute_query(
             query,
-            (HealthDataType.SLEEP_ANALYSIS.value, start_date, end_date),
+            (HealthDataType.SLEEP_ANALYSIS.value, user_id, start_date, end_date),
             fetch_one=True
         )
         
@@ -212,7 +223,8 @@ class HealthDataService:
         return None
     
     def _get_aggregated_value(
-        self, 
+        self,
+        user_id: str,
         data_type: HealthDataType, 
         start_date: datetime, 
         end_date: datetime,
@@ -223,6 +235,7 @@ class HealthDataService:
         SELECT {aggregation}(CAST(value AS FLOAT))
         FROM apple_healthkit
         WHERE type = %s
+        AND user_id = %s
         AND start_date >= %s
         AND end_date <= %s
         AND value IS NOT NULL
@@ -232,7 +245,7 @@ class HealthDataService:
         try:
             result = self.db_pool._execute_query(
                 query,
-                (data_type.value, start_date, end_date),
+                (data_type.value, user_id, start_date, end_date),
                 fetch_one=True
             )
             
@@ -243,19 +256,20 @@ class HealthDataService:
         
         return None
     
-    def _get_stand_hours(self, start_date: datetime, end_date: datetime) -> Optional[int]:
+    def _get_stand_hours(self, user_id: str, start_date: datetime, end_date: datetime) -> Optional[int]:
         """获取站立小时数"""
         query = """
         SELECT COUNT(DISTINCT DATE_TRUNC('hour', start_date))
         FROM apple_healthkit
         WHERE type = %s
+        AND user_id = %s
         AND start_date >= %s
         AND end_date <= %s
         """
         
         result = self.db_pool._execute_query(
             query,
-            (HealthDataType.STAND_HOUR.value, start_date, end_date),
+            (HealthDataType.STAND_HOUR.value, user_id, start_date, end_date),
             fetch_one=True
         )
         
@@ -267,6 +281,7 @@ class HealthDataService:
         SELECT COUNT(DISTINCT DATE_TRUNC('hour', start_date))
         FROM apple_healthkit
         WHERE type = %s
+        AND user_id = %s
         AND start_date >= %s
         AND end_date <= %s
         AND CAST(value AS FLOAT) > 0
@@ -274,7 +289,7 @@ class HealthDataService:
         
         result = self.db_pool._execute_query(
             query,
-            (HealthDataType.STAND_TIME.value, start_date, end_date),
+            (HealthDataType.STAND_TIME.value, user_id, start_date, end_date),
             fetch_one=True
         )
         

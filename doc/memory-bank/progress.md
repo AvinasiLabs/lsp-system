@@ -12,6 +12,7 @@
    - PostgreSQL数据库搭建
    - 连接池实现
    - 环境变量配置
+   - 多用户支持（user_id字段）
 
 3. **数据导入能力**
    - CSV数据批量导入
@@ -22,6 +23,43 @@
    - 支持42种HealthKit数据类型
    - 84,552条测试数据
    - 数据类型分析工具
+
+### ✅ 积分计算系统
+1. **数据接口层**
+   - 健康数据服务（HealthDataService）
+   - 数据聚合和汇总功能
+   - 支持用户数据隔离
+
+2. **积分计算引擎**
+   - 插件化的维度计算器架构
+   - 4个维度已实现（睡眠、运动、饮食、心理）
+   - 等级倍数计算
+   - 连锁惩罚检查机制
+
+3. **API接口**
+   - 健康数据查询API
+   - 每日积分计算API
+   - 日期范围积分计算API
+   - 可用维度查询API
+
+4. **多用户支持**
+   - 数据库表支持user_id
+   - 所有API支持用户参数
+   - 用户数据隔离查询
+
+5. **FastAPI服务器**
+   - 完整的REST API实现
+   - Swagger UI自动文档
+   - 健康检查端点
+   - CORS支持
+   - 错误处理中间件
+
+6. **认证系统**
+   - 可配置的认证开关（API_AUTH_ENABLED）
+   - JWT令牌生成和验证
+   - Bearer token认证
+   - 认证/非认证双模式支持
+   - 完整的认证API端点
 
 ### ✅ 已验证的数据类型
 
@@ -35,15 +73,20 @@
 
 ## 正在开发的功能
 
-### 🔄 积分计算引擎
-- [ ] 维度计算器框架
-- [ ] 规则配置系统
-- [ ] 积分计算API
+### 🔄 用户系统完善
+- [x] FastAPI服务器启动和测试
+- [x] JWT认证实现（可选模式）
+- [x] 认证系统配置开关
+- [ ] 用户注册/登录API（真实验证）
+- [ ] 密码加密存储
+- [ ] 用户等级自动更新
+- [ ] 积分历史持久化
 
-### 🔄 用户系统
-- [ ] 用户模型设计
-- [ ] 认证系统
-- [ ] 等级管理
+### 🔄 积分系统优化
+- [ ] 更多维度计算器（环境、社交、认知、预防）
+- [ ] 积分存储到user_scores表
+- [ ] 连锁反应完整实现
+- [ ] 超难任务追踪
 
 ## 待开发的功能
 
@@ -97,12 +140,27 @@ python scripts/import_csv_to_db.py
 
 # 分析HealthKit数据
 python scripts/analyze_healthkit_data.py
+
+# 测试积分计算（支持用户ID参数）
+python scripts/test_score_calculation.py [user_id]
+
+# 数据库迁移：添加user_id
+python scripts/add_user_id_migration.py
+
+# 启动FastAPI服务器
+python start_server.py
+
+# 测试API端点
+python scripts/test_api_endpoints.py
 ```
 
 ### 数据库状态
-- 表：apple_healthkit
-- 记录数：84,552
-- 索引：type, start_date, end_date
+- 表：
+  - apple_healthkit（健康数据，含user_id）
+  - users（用户信息）
+  - user_scores（用户积分记录）
+- 记录数：84,552（apple_healthkit）
+- 索引：type, start_date, end_date, user_id, user_date
 
 ### 环境要求
 - Python 3.11+

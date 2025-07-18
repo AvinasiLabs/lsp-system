@@ -6,6 +6,12 @@
 
 本项目旨在通过分析用户的健康数据（主要来自 iOS HealthKit），根据LSP积分规则计算用户的健康行为积分，激励用户养成更健康的生活习惯。
 
+## 📊 实现进度
+
+- **已实现维度**：4/8 (50%) - 睡眠、运动、饮食、心理
+- **核心功能**：✅ 积分计算引擎 ✅ 多用户支持 ✅ REST API ✅ 可选认证
+- **详细进度**：查看 [LSP积分实现进度](doc/LSP积分实现进度.md)
+
 ## 项目结构
 
 ```
@@ -28,7 +34,9 @@ lsp_system/
 │   └── sponge_no_perms.sql       # 数据库备份
 ├── doc/                   # 文档
 │   ├── LSP积分系统规则            # 积分规则说明
-│   └── LSP积分系统数据需求整理.md  # 数据需求文档
+│   ├── LSP积分系统数据需求整理.md  # 数据需求文档
+│   ├── LSP积分实现进度.md        # 实现进度追踪
+│   └── memory-bank/             # 项目开发文档
 ├── tests/                 # 测试代码
 ├── .env                   # 环境变量配置
 ├── .venv/                 # Python虚拟环境
@@ -47,11 +55,8 @@ lsp_system/
 ### 1. 安装依赖
 
 ```bash
-# 激活虚拟环境
-source .venv/bin/activate
-
-# 使用uv安装依赖
-uv pip install -r requirements.txt
+# 使用pip安装依赖
+pip install -r requirements.txt
 ```
 
 ### 2. 配置数据库
@@ -81,23 +86,48 @@ python scripts/import_csv_to_db.py
 ```bash
 # 分析HealthKit数据类型
 python scripts/analyze_healthkit_data.py
+
+# 测试积分计算
+python scripts/test_score_calculation.py
+
+# 添加用户支持（如果还没有运行过）
+python scripts/add_user_id_migration.py
 ```
+
+### 5. 启动API服务器
+
+```bash
+# 启动FastAPI服务器
+python start_server.py
+
+# 测试API端点
+python scripts/test_api_endpoints.py
+```
+
+访问 http://localhost:8000/docs 查看API文档
 
 ## 主要功能模块
 
 ### 已实现
 
 - ✅ PostgreSQL数据库连接池
-- ✅ HealthKit数据导入
+- ✅ HealthKit数据导入（84,552条记录）
 - ✅ 基础数据分析工具
+- ✅ LSP积分计算引擎（4个维度）
+- ✅ 多用户支持
+- ✅ REST API接口（FastAPI）
+- ✅ 可选认证系统（JWT）
+- ✅ API文档（Swagger UI）
 
 ### 待开发
 
-- [ ] LSP积分计算引擎
-- [ ] 用户行为分析
-- [ ] API接口开发
+- [ ] 剩余4个维度（环境、社交、认知、预防）
+- [ ] 连锁反应机制
+- [ ] Tier等级系统
+- [ ] 积分过期机制
+- [ ] 作弊检测系统
 - [ ] 数据可视化
-- [ ] 实时积分计算
+- [ ] 实时积分推送
 
 ## 数据说明
 
@@ -112,6 +142,14 @@ python scripts/analyze_healthkit_data.py
 - **环境数据**: 噪音暴露、UV暴露
 
 详细的数据需求请参考 [LSP积分系统数据需求整理](doc/LSP积分系统数据需求整理.md)
+
+## 📚 文档
+
+- [LSP积分系统规则](doc/LSP积分系统规则) - 完整的积分规则说明
+- [数据需求整理](doc/LSP积分系统数据需求整理.md) - HealthKit数据映射和实现建议
+- [积分实现进度](doc/LSP积分实现进度.md) - 基于规则文档的实现进度追踪
+- [API使用指南](API_README.md) - API端点和认证系统说明
+- [Memory Bank](doc/memory-bank/) - 项目开发文档体系
 
 ## 开发指南
 

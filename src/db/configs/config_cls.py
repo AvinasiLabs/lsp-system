@@ -59,6 +59,27 @@ class PostgreSQLConfig(BaseSettings):
     port: int
     min_connections: int = 1
     max_connections: int = 10
+
+
+class APIConfig(BaseSettings):
+    """API配置"""
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="API_", extra="ignore")
     
+    # 认证系统开关
+    auth_enabled: bool = False
     
+    # JWT设置（仅在auth_enabled=True时使用）
+    jwt_secret_key: str = "your-secret-key-here"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 1440  # 24小时
     
+    # 服务器设置
+    host: str = "0.0.0.0"
+    port: int = 8000
+    reload: bool = True
+    
+    # CORS设置
+    cors_origins: list[str] = ["*"]
+    cors_allow_credentials: bool = True
+    cors_allow_methods: list[str] = ["*"]
+    cors_allow_headers: list[str] = ["*"]

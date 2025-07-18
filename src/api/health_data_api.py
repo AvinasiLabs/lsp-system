@@ -4,12 +4,15 @@
 """
 from datetime import datetime, date
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from ..services.health_data_service import HealthDataService
 from ..core.score_engine import ScoreEngine
 from ..models.health_data import HealthDataQuery, DailyHealthSummary
 from ..utils.logger import logger
+from ..db.configs.global_config import API_CONFIG
+from .auth_middleware import get_current_user, security
 
 
 router = APIRouter(prefix="/api/v1", tags=["health-data"])
@@ -19,8 +22,35 @@ health_service = HealthDataService()
 score_engine = ScoreEngine()
 
 
+async def get_user_id(
+    user_id: Optional[str] = Query(default=None, description="用户ID"),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+) -> str:
+    """
+    获取用户ID
+    - 如果认证未启用：使用查询参数中的user_id，如果没有则返回默认用户
+    - 如果认证启用：从JWT token中获取用户ID
+    """
+    if not API_CONFIG.auth_enabled:
+        # 认证未启用，使用查询参数或默认值
+        return user_id or "default_user"
+    
+    # 认证启用，从token中获取用户ID
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=401,
+            detail="需要认证",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    from .auth_middleware import verify_token
+    payload = verify_token(credentials.credentials)
+    return payload.get("sub", "default_user")
+
+
 class ScoreResponse(BaseModel):
     """积分响应模型"""
+    user_id: str
     date: str
     health_summary: dict
     dimension_scores: dict
@@ -45,14 +75,15 @@ class HealthSummaryResponse(BaseModel):
 
 @router.get("/health/daily-summary", response_model=HealthSummaryResponse)
 async def get_daily_health_summary(
-    date: date = Query(default=None, description="查询日期，默认为今天")
+    date: date = Query(default=None, description="查询日期，默认为今天"),
+    user_id: str = Depends(get_user_id)
 ):
     """
     获取指定日期的健康数据汇总
     """
     try:
         query_date = datetime.combine(date or datetime.now().date(), datetime.min.time())
-        summary = health_service.get_daily_summary(query_date)
+        summary = health_service.get_daily_summary(user_id, query_date)
         
         return HealthSummaryResponse(
             date=query_date.strftime('%Y-%m-%d'),
@@ -73,14 +104,15 @@ async def get_daily_health_summary(
 
 @router.get("/score/daily", response_model=ScoreResponse)
 async def calculate_daily_score(
-    date: date = Query(default=None, description="计算日期，默认为今天")
+    date: date = Query(default=None, description="计算日期，默认为今天"),
+    user_id: str = Depends(get_user_id)
 ):
     """
     计算指定日期的积分
     """
     try:
         query_date = datetime.combine(date or datetime.now().date(), datetime.min.time())
-        score_result = score_engine.calculate_daily_score(query_date)
+        score_result = score_engine.calculate_daily_score(user_id, query_date)
         
         return ScoreResponse(**score_result)
     except Exception as e:
@@ -91,7 +123,8 @@ async def calculate_daily_score(
 @router.get("/score/range", response_model=List[ScoreResponse])
 async def calculate_score_range(
     start_date: date = Query(..., description="开始日期"),
-    end_date: date = Query(..., description="结束日期")
+    end_date: date = Query(..., description="结束日期"),
+    user_id: str = Depends(get_user_id)
 ):
     """
     计算日期范围内的积分
@@ -107,7 +140,7 @@ async def calculate_score_range(
         start = datetime.combine(start_date, datetime.min.time())
         end = datetime.combine(end_date, datetime.min.time())
         
-        scores = score_engine.calculate_date_range_scores(start, end)
+        scores = score_engine.calculate_date_range_scores(user_id, start, end)
         
         return [ScoreResponse(**score) for score in scores]
     except HTTPException:
@@ -118,12 +151,14 @@ async def calculate_score_range(
 
 
 @router.get("/score/available-dimensions")
-async def get_available_dimensions():
+async def get_available_dimensions(
+    user_id: str = Depends(get_user_id)
+):
     """
     获取可用的积分维度
     """
     try:
-        available = score_engine.get_available_dimensions()
+        available = score_engine.get_available_dimensions(user_id)
         return {
             "dimensions": available,
             "message": "基于当前HealthKit数据的可用维度"

@@ -31,21 +31,22 @@ class ScoreEngine:
         # 用户等级（暂时硬编码为BRONZE）
         self.user_level = 'BRONZE'
     
-    def calculate_daily_score(self, date: datetime) -> Dict:
+    def calculate_daily_score(self, user_id: str, date: datetime) -> Dict:
         """
         计算指定日期的积分
         
         Args:
+            user_id: 用户ID
             date: 日期
             
         Returns:
             积分结果字典
         """
         # 获取当日健康数据汇总
-        health_summary = self.health_service.get_daily_summary(date)
+        health_summary = self.health_service.get_daily_summary(user_id, date)
         
         # 获取历史数据（用于连锁反应检查）
-        history_data = self._get_history_data(date, days=7)
+        history_data = self._get_history_data(user_id, date, days=7)
         
         # 计算各维度积分
         dimension_scores = {}
@@ -68,6 +69,7 @@ class ScoreEngine:
             total_score += scores['total']
         
         return {
+            'user_id': user_id,
             'date': date.isoformat(),
             'health_summary': health_summary.dict(),
             'dimension_scores': dimension_scores,
@@ -76,11 +78,12 @@ class ScoreEngine:
             'timestamp': datetime.now().isoformat()
         }
     
-    def calculate_date_range_scores(self, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def calculate_date_range_scores(self, user_id: str, start_date: datetime, end_date: datetime) -> List[Dict]:
         """
         计算日期范围内的积分
         
         Args:
+            user_id: 用户ID
             start_date: 开始日期
             end_date: 结束日期
             
@@ -92,7 +95,7 @@ class ScoreEngine:
         
         while current_date <= end_date:
             try:
-                daily_score = self.calculate_daily_score(current_date)
+                daily_score = self.calculate_daily_score(user_id, current_date)
                 scores.append(daily_score)
             except Exception as e:
                 logger.error(f"计算{current_date}积分失败: {e}")
@@ -101,7 +104,7 @@ class ScoreEngine:
         
         return scores
     
-    def get_available_dimensions(self) -> Dict[str, bool]:
+    def get_available_dimensions(self, user_id: str = "default_user") -> Dict[str, bool]:
         """
         获取可用的积分维度
         
@@ -112,7 +115,7 @@ class ScoreEngine:
         
         # 检查每个维度是否有数据
         test_date = datetime.now()
-        health_summary = self.health_service.get_daily_summary(test_date)
+        health_summary = self.health_service.get_daily_summary(user_id, test_date)
         
         available[ScoreDimension.SLEEP] = health_summary.sleep_hours is not None
         available[ScoreDimension.EXERCISE] = any([
@@ -130,14 +133,14 @@ class ScoreEngine:
         
         return available
     
-    def _get_history_data(self, date: datetime, days: int = 7) -> Dict[str, DailyHealthSummary]:
+    def _get_history_data(self, user_id: str, date: datetime, days: int = 7) -> Dict[str, DailyHealthSummary]:
         """获取历史数据"""
         history = {}
         
         for i in range(1, days + 1):
             past_date = date - timedelta(days=i)
             try:
-                summary = self.health_service.get_daily_summary(past_date)
+                summary = self.health_service.get_daily_summary(user_id, past_date)
                 history[past_date.strftime('%Y-%m-%d')] = summary
             except Exception as e:
                 logger.error(f"获取{past_date}历史数据失败: {e}")

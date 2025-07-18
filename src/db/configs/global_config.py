@@ -1,6 +1,7 @@
 from .config_cls import (
     LoggerConfig,
-    PostgreSQLConfig
+    PostgreSQLConfig,
+    APIConfig
 )
 
 
@@ -20,3 +21,6 @@ POSTGRES_CONFIG = PostgreSQLConfig(
     min_connections=1,
     max_connections=10
 )
+
+
+API_CONFIG = APIConfig()

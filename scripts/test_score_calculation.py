@@ -13,9 +13,10 @@ from src.core.score_engine import ScoreEngine
 from src.services.health_data_service import HealthDataService
 
 
-def test_health_data_service():
+def test_health_data_service(user_id="default_user"):
     """测试健康数据服务"""
     print("=== 测试健康数据服务 ===\n")
+    print(f"用户ID: {user_id}\n")
     
     service = HealthDataService()
     
@@ -27,7 +28,7 @@ def test_health_data_service():
     
     current_date = start_date
     while current_date <= end_date:
-        summary = service.get_daily_summary(current_date)
+        summary = service.get_daily_summary(user_id, current_date)
         
         print(f"日期: {current_date.date()}")
         print(f"  睡眠: {summary.sleep_hours:.1f} 小时" if summary.sleep_hours else "  睡眠: 无数据")
@@ -42,15 +43,16 @@ def test_health_data_service():
         current_date += timedelta(days=1)
 
 
-def test_score_calculation():
+def test_score_calculation(user_id="default_user"):
     """测试积分计算"""
     print("\n=== 测试积分计算 ===\n")
+    print(f"用户ID: {user_id}\n")
     
     engine = ScoreEngine()
     
     # 检查可用维度
     print("可用的积分维度:")
-    available = engine.get_available_dimensions()
+    available = engine.get_available_dimensions(user_id)
     for dimension, is_available in available.items():
         status = "✅" if is_available else "❌"
         print(f"  {status} {dimension}")
@@ -60,7 +62,7 @@ def test_score_calculation():
     test_date = datetime(2025, 7, 8)
     print(f"计算 {test_date.date()} 的积分:\n")
     
-    result = engine.calculate_daily_score(test_date)
+    result = engine.calculate_daily_score(user_id, test_date)
     
     # 显示健康数据
     print("健康数据汇总:")
@@ -85,9 +87,10 @@ def test_score_calculation():
     print(f"用户等级: {result['user_level']}")
 
 
-def test_date_range_scores():
+def test_date_range_scores(user_id="default_user"):
     """测试日期范围积分计算"""
     print("\n\n=== 测试日期范围积分计算 ===\n")
+    print(f"用户ID: {user_id}\n")
     
     engine = ScoreEngine()
     
@@ -97,7 +100,7 @@ def test_date_range_scores():
     
     print(f"计算 {start_date.date()} 到 {end_date.date()} 的积分:\n")
     
-    scores = engine.calculate_date_range_scores(start_date, end_date)
+    scores = engine.calculate_date_range_scores(user_id, start_date, end_date)
     
     # 显示每日积分
     print("日期          睡眠   运动   饮食   心理   总分")
@@ -123,15 +126,18 @@ def main():
     """主函数"""
     print("LSP积分系统 - 功能测试\n")
     
+    # 可以通过命令行参数指定用户ID
+    user_id = sys.argv[1] if len(sys.argv) > 1 else "default_user"
+    
     try:
         # 测试健康数据服务
-        test_health_data_service()
+        test_health_data_service(user_id)
         
         # 测试积分计算
-        test_score_calculation()
+        test_score_calculation(user_id)
         
         # 测试日期范围积分
-        test_date_range_scores()
+        test_date_range_scores(user_id)
         
         print("\n\n✅ 所有测试完成!")
         
