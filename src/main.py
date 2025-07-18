@@ -10,6 +10,7 @@ import uvicorn
 
 from .api.health_data_api import router as health_data_router
 from .api.auth_api import router as auth_router
+from .api.score_api import router as score_router
 from .api.auth_middleware import AuthMiddleware
 from .utils.logger import logger
 from .db.postgresql import POSTGRES_POOL
@@ -63,6 +64,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(health_data_router)
 app.include_router(auth_router)
+app.include_router(score_router)
 
 
 @app.get("/")
