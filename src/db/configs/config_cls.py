@@ -1,0 +1,64 @@
+from typing import Optional, Literal, Dict
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
+
+
+BASE_PATH = Path(__file__).parent.parent
+
+
+# Init cache directory
+CACHE = BASE_PATH.joinpath('.cache')
+
+
+# Logger config
+class LoggerConfig(BaseSettings):
+    name: str
+    file_name: str = 'sponge-algo.log'
+    level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] = 'DEBUG'
+    when: str = 'midnight'    # S-Seconds, M-Minutes, H-Hours, D-Days, midnight, W{0-6}-certain day
+    interval: int = 1
+    backup_count: int = 30
+    delay: bool = False
+    utc: bool = True
+
+
+class LLMConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="LLM_", extra="allow")
+
+    base_url: str
+    model: str
+    temperature: float = 0.7
+    max_tokens: int = 4096
+    top_p: float = 1.0
+    api_key: SecretStr
+    completion_cost: float = 1e-5    # The cost of completion tokens
+    prompt_cost: float = 2.5e-6        # The cost of prompt tokens
+    proxy: Optional[str] = None
+    timeout: float = 300.0
+    system_prompt: Optional[str] = None
+
+
+class BaseMemoryConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="MEMORY_", extra="ignore")
+
+    persist_directory: str = str(CACHE.joinpath("memory/default"))
+    embedding_model_name: str = "all-MiniLM-L6-v2"
+    collection_name: str = "default"
+    bm25_data_file: str = "bm25_data.pkl"
+
+
+# Store config
+class PostgreSQLConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="POSTGRES_", extra="ignore")
+
+    dbname: str
+    user: str
+    pwd: SecretStr
+    host: str
+    port: int
+    min_connections: int = 1
+    max_connections: int = 10
+    
+    
+    
