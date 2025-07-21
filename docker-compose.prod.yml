@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    image: lsp-system:latest
+    container_name: lsp_app
+    env_file:
+      - .env.prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - /var/log/lsp:/app/logs
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M

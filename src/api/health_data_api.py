@@ -12,7 +12,7 @@ from ..core.score_engine import ScoreEngine
 from ..models.health_data import HealthDataQuery, DailyHealthSummary
 from ..utils.logger import logger
 from ..db.configs.global_config import API_CONFIG
-from .auth_middleware import get_current_user, security
+from .auth_middleware import get_current_user, security, get_user_id
 
 
 router = APIRouter(prefix="/api/v1", tags=["health-data"])
@@ -22,30 +22,7 @@ health_service = HealthDataService()
 score_engine = ScoreEngine()
 
 
-async def get_user_id(
-    user_id: Optional[str] = Query(default=None, description="用户ID"),
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
-) -> str:
-    """
-    获取用户ID
-    - 如果认证未启用：使用查询参数中的user_id，如果没有则返回默认用户
-    - 如果认证启用：从JWT token中获取用户ID
-    """
-    if not API_CONFIG.auth_enabled:
-        # 认证未启用，使用查询参数或默认值
-        return user_id or "default_user"
-    
-    # 认证启用，从token中获取用户ID
-    if not credentials or not credentials.credentials:
-        raise HTTPException(
-            status_code=401,
-            detail="需要认证",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    from .auth_middleware import verify_token
-    payload = verify_token(credentials.credentials)
-    return payload.get("sub", "default_user")
+# get_user_id函数已移至auth_middleware.py
 
 
 class ScoreResponse(BaseModel):
@@ -116,8 +93,11 @@ async def calculate_daily_score(
         
         return ScoreResponse(**score_result)
     except Exception as e:
+        import traceback
         logger.error(f"计算积分失败: {e}")
-        raise HTTPException(status_code=500, detail="计算积分失败")
+        logger.error(f"错误类型: {type(e).__name__}")
+        logger.error(f"堆栈跟踪: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"计算积分失败: {str(e)}")
 
 
 @router.get("/score/range", response_model=List[ScoreResponse])

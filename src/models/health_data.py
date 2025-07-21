@@ -41,6 +41,13 @@ class HealthDataType(str, Enum):
     MINDFUL_SESSION = "HKCategoryTypeIdentifierMindfulSession"
 
 
+class DifficultyLevel(str, Enum):
+    """难度等级枚举"""
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+
+
 class HealthDataRecord(BaseModel):
     """健康数据记录模型"""
     id: int

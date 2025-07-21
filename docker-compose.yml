@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  # LSP应用（使用外部数据库）
+  app:
+    build: .
+    container_name: lsp_app
+    environment:
+      # 数据库配置（连接到线上数据库）
+      POSTGRES_HOST: ${POSTGRES_HOST:-your-production-db-host}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME:-sponge}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PWD: ${POSTGRES_PWD}
+      # API配置
+      AUTH_ENABLED: ${AUTH_ENABLED:-false}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-here}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-30}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped

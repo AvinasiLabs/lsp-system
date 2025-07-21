@@ -86,7 +86,7 @@ class ScoreEngine:
         result = {
             'user_id': user_id,
             'date': date.isoformat(),
-            'health_summary': health_summary.dict(),
+            'health_summary': health_summary.model_dump(),
             'dimension_scores': dimension_scores,
             'total_score': total_score,
             'user_level': user_tier,
@@ -188,27 +188,18 @@ class ScoreEngine:
         """
         try:
             # 从users表获取用户等级
-            users = POSTGRES_POOL.select_data(
-                table_name="users",
-                conditions="user_id = %s",
-                params=(user_id,),
-                limit=1
-            )
+            query = "SELECT level FROM users WHERE user_id = %s LIMIT 1"
+            result = POSTGRES_POOL._execute_query(query, (user_id,), fetch_one=True)
             
-            if users and len(users) > 0:
-                return users[0].get('level', 'Bronze')
+            if result and result[0]:
+                return result[0]
             
             # 如果users表没有记录，从最新的积分记录获取
-            scores = POSTGRES_POOL.select_data(
-                table_name="user_scores",
-                conditions="user_id = %s",
-                params=(user_id,),
-                order_by="created_at DESC",
-                limit=1
-            )
+            query = "SELECT tier_level FROM user_scores WHERE user_id = %s ORDER BY created_at DESC LIMIT 1"
+            result = POSTGRES_POOL._execute_query(query, (user_id,), fetch_one=True)
             
-            if scores and len(scores) > 0:
-                return scores[0].get('tier_level', 'Bronze')
+            if result and result[0]:
+                return result[0]
             
             return 'Bronze'
             

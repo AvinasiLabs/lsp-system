@@ -4,7 +4,7 @@
 """
 from datetime import datetime, date, timedelta
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Path, Depends
 from pydantic import BaseModel
 from ..services.score_persistence_service import ScorePersistenceService
 from ..utils.logger import logger
@@ -209,8 +209,8 @@ async def check_and_mark_expired():
 
 @router.get("/summary/{year}/{month}")
 async def get_monthly_summary(
-    year: int = Query(..., ge=2020, le=2030),
-    month: int = Query(..., ge=1, le=12),
+    year: int = Path(..., ge=2020, le=2030),
+    month: int = Path(..., ge=1, le=12),
     user_id: str = Depends(get_user_id)
 ):
     """

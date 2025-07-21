@@ -3,7 +3,7 @@
 可通过配置开关控制是否启用认证
 """
 from typing import Optional, Callable
-from fastapi import Request, HTTPException, status
+from fastapi import Request, HTTPException, status, Query, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -46,6 +46,31 @@ def verify_token(token: str) -> dict:
             detail="无效的认证令牌",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+async def get_user_id(
+    user_id: Optional[str] = Query(default=None, description="用户ID"),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+) -> str:
+    """
+    获取用户ID
+    - 如果认证未启用：使用查询参数中的user_id，如果没有则返回默认用户
+    - 如果认证启用：从JWT token中获取用户ID
+    """
+    if not API_CONFIG.auth_enabled:
+        # 认证未启用，使用查询参数或默认值
+        return user_id or "default_user"
+    
+    # 认证启用，从token中获取用户ID
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=401,
+            detail="需要认证",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    payload = verify_token(credentials.credentials)
+    return payload.get("sub", "default_user")
 
 
 async def get_current_user(

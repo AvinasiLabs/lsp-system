@@ -115,7 +115,7 @@ class ScorePersistenceService:
             if cursor:
                 cursor.close()
             if conn:
-                POSTGRES_POOL.return_connection(conn)
+                POSTGRES_POOL.put_connection(conn)
     
     def _save_dimension_score(self, cursor, user_id: str, date: datetime,
                              dimension: str, difficulty: str, score: int,
@@ -369,7 +369,7 @@ class ScorePersistenceService:
             if cursor:
                 cursor.close()
             if conn:
-                POSTGRES_POOL.return_connection(conn)
+                POSTGRES_POOL.put_connection(conn)
     
     def get_user_tier_stats(self, user_id: str) -> Dict:
         """
