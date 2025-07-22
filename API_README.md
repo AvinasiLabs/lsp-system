@@ -48,64 +48,64 @@ python start_server.py
 
 ### 3. 访问API文档
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- Swagger UI: http://localhost:8000/lsp/docs
+- ReDoc: http://localhost:8000/lsp/redoc
 
 ## API端点
 
 ### 健康检查
 ```bash
-GET /health
+GET /lsp/health
 ```
 
 ### 健康数据汇总
 ```bash
-GET /api/v1/health/daily-summary?user_id=user_001&date=2025-07-08
+GET /lsp/api/v1/health/daily-summary?user_id=user_001&date=2025-07-08
 ```
 
 ### 计算每日积分
 ```bash
-GET /api/v1/score/daily?user_id=user_001&date=2025-07-08
+GET /lsp/api/v1/score/daily?user_id=user_001&date=2025-07-08
 ```
 
 ### 计算日期范围积分
 ```bash
-GET /api/v1/score/range?user_id=user_001&start_date=2025-07-03&end_date=2025-07-09
+GET /lsp/api/v1/score/range?user_id=user_001&start_date=2025-07-03&end_date=2025-07-09
 ```
 
 ### 获取可用维度
 ```bash
-GET /api/v1/score/available-dimensions?user_id=user_001
+GET /lsp/api/v1/score/available-dimensions?user_id=user_001
 ```
 
 ### 查询有效积分
 ```bash
-GET /api/v1/scores/valid?user_id=user_001
+GET /lsp/api/v1/scores/valid?user_id=user_001
 ```
 
 ### 查询积分历史
 ```bash
-GET /api/v1/scores/history?user_id=user_001&start_date=2025-07-01&end_date=2025-07-31&include_expired=false
+GET /lsp/api/v1/scores/history?user_id=user_001&start_date=2025-07-01&end_date=2025-07-31&include_expired=false
 ```
 
 ### 查询即将过期积分
 ```bash
-GET /api/v1/scores/expiring?user_id=user_001&days_ahead=30
+GET /lsp/api/v1/scores/expiring?user_id=user_001&days_ahead=30
 ```
 
 ### 查询用户等级统计
 ```bash
-GET /api/v1/scores/tier-stats?user_id=user_001
+GET /lsp/api/v1/scores/tier-stats?user_id=user_001
 ```
 
 ### 查询月度汇总
 ```bash
-GET /api/v1/scores/summary/2025/7?user_id=user_001
+GET /lsp/api/v1/scores/summary/2025/7?user_id=user_001
 ```
 
 ### 检查并标记过期积分
 ```bash
-POST /api/v1/scores/check-expiration
+POST /lsp/api/v1/scores/check-expiration
 ```
 
 ## 测试API
@@ -141,27 +141,27 @@ API_PORT=8080 python start_server.py
 ### 检查认证状态
 
 ```bash
-curl http://localhost:8000/api/v1/auth/status
+curl http://localhost:8000/lsp/api/v1/auth/status
 ```
 
 ### 禁用认证时的请求
 
 ```bash
 # 直接使用user_id参数
-curl "http://localhost:8000/api/v1/score/daily?user_id=user_001&date=2025-07-08"
+curl "http://localhost:8000/lsp/api/v1/score/daily?user_id=user_001&date=2025-07-08"
 ```
 
 ### 启用认证时的请求
 
 1. 获取访问令牌（演示用）：
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/demo-token/user_001
+curl -X POST http://localhost:8000/lsp/api/v1/auth/demo-token/user_001
 ```
 
 2. 使用令牌访问API：
 ```bash
 curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-     "http://localhost:8000/api/v1/score/daily?date=2025-07-08"
+     "http://localhost:8000/lsp/api/v1/score/daily?date=2025-07-08"
 ```
 
 ## 示例请求
@@ -170,10 +170,10 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
 
 ```bash
 # 获取用户健康数据
-curl "http://localhost:8000/api/v1/health/daily-summary?user_id=user_001&date=2025-07-08"
+curl "http://localhost:8000/lsp/api/v1/health/daily-summary?user_id=user_001&date=2025-07-08"
 
 # 计算用户积分
-curl "http://localhost:8000/api/v1/score/daily?user_id=user_001&date=2025-07-08"
+curl "http://localhost:8000/lsp/api/v1/score/daily?user_id=user_001&date=2025-07-08"
 ```
 
 ### 使用 Python
@@ -183,14 +183,14 @@ import requests
 
 # 获取健康数据
 response = requests.get(
-    "http://localhost:8000/api/v1/health/daily-summary",
+    "http://localhost:8000/lsp/api/v1/health/daily-summary",
     params={"user_id": "user_001", "date": "2025-07-08"}
 )
 print(response.json())
 
 # 计算积分
 response = requests.get(
-    "http://localhost:8000/api/v1/score/daily",
+    "http://localhost:8000/lsp/api/v1/score/daily",
     params={"user_id": "user_001", "date": "2025-07-08"}
 )
 print(response.json())

@@ -46,7 +46,10 @@ app = FastAPI(
     title="LSP积分系统",
     description="基于健康数据的长寿积分计算系统",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/lsp/docs",
+    redoc_url="/lsp/redoc",
+    openapi_url="/lsp/openapi.json"
 )
 
 # 添加认证中间件
@@ -67,19 +70,19 @@ app.include_router(auth_router)
 app.include_router(score_router)
 
 
-@app.get("/")
+@app.get("/lsp")
 async def root():
     """根路径"""
     return {
         "message": "欢迎使用LSP积分系统",
         "version": "1.0.0",
-        "docs": "/docs",
-        "redoc": "/redoc",
+        "docs": "/lsp/docs",
+        "redoc": "/lsp/redoc",
         "auth_enabled": API_CONFIG.auth_enabled
     }
 
 
-@app.get("/health")
+@app.get("/lsp/health")
 async def health_check():
     """健康检查端点"""
     try:

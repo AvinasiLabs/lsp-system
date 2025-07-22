@@ -110,7 +110,7 @@ python scripts/test_api_endpoints.py
 python scripts/test_score_persistence.py
 ```
 
-访问 http://localhost:8000/docs 查看API文档
+访问 http://localhost:8000/lsp/docs 查看API文档
 
 ## 主要功能模块
 

@@ -13,7 +13,7 @@ def test_api_endpoints(base_url="http://localhost:8000"):
     
     # 测试根路径
     print("1. 测试根路径")
-    response = requests.get(f"{base_url}/")
+    response = requests.get(f"{base_url}/lsp")
     print(f"   状态码: {response.status_code}")
     data = response.json()
     print(f"   响应: {data}")
@@ -22,7 +22,7 @@ def test_api_endpoints(base_url="http://localhost:8000"):
     
     # 测试健康检查
     print("2. 测试健康检查")
-    response = requests.get(f"{base_url}/health")
+    response = requests.get(f"{base_url}/lsp/health")
     print(f"   状态码: {response.status_code}")
     print(f"   响应: {response.json()}\n")
     
@@ -35,7 +35,7 @@ def test_auth_endpoints(base_url):
     
     # 检查认证状态
     print("1. 检查认证状态")
-    response = requests.get(f"{base_url}/api/v1/auth/status")
+    response = requests.get(f"{base_url}/lsp/api/v1/auth/status")
     print(f"   状态码: {response.status_code}")
     if response.status_code == 200:
         data = response.json()
@@ -48,7 +48,7 @@ def test_auth_endpoints(base_url):
 def get_test_token(base_url, user_id="user_001"):
     """获取测试令牌"""
     print(f"\n2. 为用户 {user_id} 创建测试令牌")
-    response = requests.post(f"{base_url}/api/v1/auth/demo-token/{user_id}")
+    response = requests.post(f"{base_url}/lsp/api/v1/auth/demo-token/{user_id}")
     if response.status_code == 200:
         data = response.json()
         token = data['access_token']
@@ -84,7 +84,7 @@ def test_health_endpoints(base_url, auth_enabled):
     # 测试健康数据汇总
     print("\n3. 测试健康数据汇总")
     response = requests.get(
-        f"{base_url}/api/v1/health/daily-summary", 
+        f"{base_url}/lsp/api/v1/health/daily-summary", 
         params=params, 
         headers=headers
     )
@@ -101,7 +101,7 @@ def test_health_endpoints(base_url, auth_enabled):
     # 测试每日积分计算
     print("\n4. 测试每日积分计算")
     response = requests.get(
-        f"{base_url}/api/v1/score/daily", 
+        f"{base_url}/lsp/api/v1/score/daily", 
         params=params, 
         headers=headers
     )
@@ -129,7 +129,7 @@ def test_health_endpoints(base_url, auth_enabled):
         range_params["user_id"] = "user_001"
     
     response = requests.get(
-        f"{base_url}/api/v1/score/range", 
+        f"{base_url}/lsp/api/v1/score/range", 
         params=range_params, 
         headers=headers
     )
@@ -151,7 +151,7 @@ def test_health_endpoints(base_url, auth_enabled):
         dim_params["user_id"] = "user_001"
     
     response = requests.get(
-        f"{base_url}/api/v1/score/available-dimensions", 
+        f"{base_url}/lsp/api/v1/score/available-dimensions", 
         params=dim_params, 
         headers=headers
     )
@@ -191,7 +191,7 @@ def test_multi_user_isolation(base_url, auth_enabled):
             
             # 测试健康数据
             response = requests.get(
-                f"{base_url}/api/v1/health/daily-summary",
+                f"{base_url}/lsp/api/v1/health/daily-summary",
                 params={"date": test_date},
                 headers=headers
             )
@@ -204,7 +204,7 @@ def test_multi_user_isolation(base_url, auth_enabled):
             
             # 测试积分
             response = requests.get(
-                f"{base_url}/api/v1/score/daily",
+                f"{base_url}/lsp/api/v1/score/daily",
                 params={"date": test_date},
                 headers=headers
             )
@@ -221,7 +221,7 @@ def test_multi_user_isolation(base_url, auth_enabled):
             
             # 测试健康数据
             response = requests.get(
-                f"{base_url}/api/v1/health/daily-summary",
+                f"{base_url}/lsp/api/v1/health/daily-summary",
                 params={"user_id": user_id, "date": test_date}
             )
             
@@ -232,7 +232,7 @@ def test_multi_user_isolation(base_url, auth_enabled):
             
             # 测试积分
             response = requests.get(
-                f"{base_url}/api/v1/score/daily",
+                f"{base_url}/lsp/api/v1/score/daily",
                 params={"user_id": user_id, "date": test_date}
             )
             

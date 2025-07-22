@@ -142,7 +142,7 @@ def test_api_endpoints(base_url="http://localhost:8000"):
     # 1. 测试有效积分查询
     print("1. 测试有效积分查询")
     response = requests.get(
-        f"{base_url}/api/v1/scores/valid",
+        f"{base_url}/lsp/api/v1/scores/valid",
         params=params,
         headers=headers
     )
@@ -163,7 +163,7 @@ def test_api_endpoints(base_url="http://localhost:8000"):
         'include_expired': False
     })
     response = requests.get(
-        f"{base_url}/api/v1/scores/history",
+        f"{base_url}/lsp/api/v1/scores/history",
         params=history_params,
         headers=headers
     )
@@ -181,7 +181,7 @@ def test_api_endpoints(base_url="http://localhost:8000"):
     expiring_params = params.copy()
     expiring_params['days_ahead'] = 30
     response = requests.get(
-        f"{base_url}/api/v1/scores/expiring",
+        f"{base_url}/lsp/api/v1/scores/expiring",
         params=expiring_params,
         headers=headers
     )
@@ -195,7 +195,7 @@ def test_api_endpoints(base_url="http://localhost:8000"):
     # 4. 测试等级统计
     print("4. 测试等级统计")
     response = requests.get(
-        f"{base_url}/api/v1/scores/tier-stats",
+        f"{base_url}/lsp/api/v1/scores/tier-stats",
         params=params,
         headers=headers
     )

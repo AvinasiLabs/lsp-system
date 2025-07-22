@@ -12,7 +12,7 @@ from ..db.configs.global_config import API_CONFIG
 from .auth_middleware import get_user_id
 
 
-router = APIRouter(prefix="/api/v1/scores", tags=["scores"])
+router = APIRouter(prefix="/lsp/api/v1/scores", tags=["scores"])
 
 # 初始化服务
 persistence_service = ScorePersistenceService()

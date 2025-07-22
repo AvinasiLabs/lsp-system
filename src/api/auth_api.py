@@ -11,7 +11,7 @@ from .auth_middleware import create_access_token
 from ..utils.logger import logger
 
 
-router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
+router = APIRouter(prefix="/lsp/api/v1/auth", tags=["authentication"])
 
 
 class LoginRequest(BaseModel):
@@ -40,7 +40,7 @@ async def auth_status():
     获取认证系统状态
     """
     if API_CONFIG.auth_enabled:
-        message = "认证系统已启用，请使用/api/v1/auth/login获取访问令牌"
+        message = "认证系统已启用，请使用/lsp/api/v1/auth/login获取访问令牌"
     else:
         message = "认证系统已禁用，可直接使用API，通过user_id参数指定用户"
     

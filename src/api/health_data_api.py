@@ -15,7 +15,7 @@ from ..db.configs.global_config import API_CONFIG
 from .auth_middleware import get_current_user, security, get_user_id
 
 
-router = APIRouter(prefix="/api/v1", tags=["health-data"])
+router = APIRouter(prefix="/lsp/api/v1", tags=["health-data"])
 
 # 初始化服务
 health_service = HealthDataService()

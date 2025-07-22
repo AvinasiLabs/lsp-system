@@ -17,7 +17,19 @@ POSTGRES_HOST=your-database-host
 POSTGRES_PWD=your-database-password
 ```
 
-### 2. 构建和运行
+### 2. 初始化数据库（首次部署）
+
+如果是首次部署，需要创建数据库表：
+
+```bash
+# 方式1：使用Python脚本
+python scripts/init_database.py
+
+# 方式2：直接执行SQL
+psql -h your-db-host -U postgres -d sponge -f scripts/create_tables.sql
+```
+
+### 3. 构建和运行
 
 使用docker-compose启动服务：
 
@@ -32,17 +44,17 @@ docker-compose logs -f
 docker-compose down
 ```
 
-### 3. 验证部署
+### 4. 验证部署
 
 检查服务健康状态：
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:8000/lsp/health
 ```
 
 访问API文档：
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- Swagger UI: http://localhost:8000/lsp/docs
+- ReDoc: http://localhost:8000/lsp/redoc
 
 ## 生产环境部署
 

@@ -39,10 +39,10 @@ Issue Link: https://github.com/AvinasiLabs/lsp-system/issues/1
 
 ### Phase 4: 积分查询API (Step 5-6)
 - 创建新的API端点在 `src/api/score_api.py`
-  - GET /api/v1/scores/history - 积分历史
-  - GET /api/v1/scores/valid - 当前有效积分
-  - GET /api/v1/scores/expiring - 即将过期积分
-  - POST /api/v1/scores/check-expiration - 手动触发过期检查
+  - GET /lsp/api/v1/scores/history - 积分历史
+  - GET /lsp/api/v1/scores/valid - 当前有效积分
+  - GET /lsp/api/v1/scores/expiring - 即将过期积分
+  - POST /lsp/api/v1/scores/check-expiration - 手动触发过期检查
 
 ### Phase 5: 测试和文档 (Step 7-8)
 - 创建测试脚本 `scripts/test_score_persistence.py`
