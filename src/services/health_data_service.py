@@ -148,13 +148,16 @@ class HealthDataService:
 
     def _get_sleep_data(self, user_id: str, start_date: datetime, end_date: datetime) -> Optional[Dict]:
         """获取睡眠数据"""
-        # 注意：睡眠数据可能跨越日期边界
-        # 我们需要获取在指定日期内结束的睡眠记录
-        query = f"""
+        # 简化方法：取最早开始和最晚结束时间，计算跨度
+        # 这种方法假设一个晚上的睡眠是连续的（有些重叠的记录）
+        query = """
         SELECT 
-            MIN(start_date) as sleep_start,
-            MAX(end_date) as sleep_end,
-            SUM(EXTRACT(EPOCH FROM (end_date - start_date)) / 3600) as total_hours
+            MIN(CASE WHEN start_date < %s THEN %s ELSE start_date END) as sleep_start,
+            MAX(CASE WHEN end_date > %s THEN %s ELSE end_date END) as sleep_end,
+            EXTRACT(EPOCH FROM (
+                MAX(CASE WHEN end_date > %s THEN %s ELSE end_date END) - 
+                MIN(CASE WHEN start_date < %s THEN %s ELSE start_date END)
+            )) / 3600 as total_hours
         FROM health_metric
         WHERE type = %s
         AND user_id = %s
@@ -163,11 +166,35 @@ class HealthDataService:
         """
 
         result = self.db_pool._execute_query(
-            query, (HealthDataType.SLEEP_ANALYSIS.value, user_id, start_date, end_date), fetch_one=True
+            query, (
+                start_date, start_date,  # 开始时间边界
+                end_date, end_date,      # 结束时间边界
+                end_date, end_date,      # 计算结束时间
+                start_date, start_date,  # 计算开始时间
+                HealthDataType.SLEEP_ANALYSIS.value, 
+                user_id,
+                start_date,              # 过滤条件
+                end_date                 # 过滤条件
+            ), 
+            fetch_one=True
         )
 
-        if result and result[2]:
-            return {"sleep_start": result[0], "sleep_end": result[1], "total_hours": float(result[2])}
+        if result and result['total_hours'] and result['total_hours'] > 0:
+            # 确保睡眠时间合理（通常3-12小时）
+            total_hours = float(result['total_hours'])
+            if total_hours > 12:
+                # 如果超过12小时，可能是数据问题，取一个合理值
+                logger.warning(f"用户{user_id}在{start_date.date()}的睡眠时间异常: {total_hours:.1f}小时")
+                total_hours = 8.0  # 默认8小时
+            elif total_hours < 1:
+                # 少于1小时可能是午睡，忽略
+                return None
+                
+            return {
+                "sleep_start": result['sleep_start'], 
+                "sleep_end": result['sleep_end'], 
+                "total_hours": round(total_hours, 1)
+            }
         return None
 
     def _get_aggregated_value(

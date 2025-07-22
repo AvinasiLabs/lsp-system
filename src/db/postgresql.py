@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import pool
+from psycopg2.extras import DictCursor
 import threading
 import time
 from typing import Union, List
@@ -96,7 +97,7 @@ class PostgreSQLConnectionPool:
         try:
             conn = self.get_connection()
             if conn:
-                with conn.cursor() as cursor:
+                with conn.cursor(cursor_factory=DictCursor) as cursor:
                     cursor.execute(sql_query, params)
                     if commit:
                         conn.commit()

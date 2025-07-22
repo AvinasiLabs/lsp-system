@@ -229,9 +229,8 @@ class ScorePersistenceService:
             
             data = POSTGRES_POOL.select_data(
                 table_name="user_scores",
-                conditions=conditions,
-                params=params,
-                order_by="score_date DESC, created_at DESC"
+                conditions=conditions + " ORDER BY score_date DESC, created_at DESC",
+                params=params
             )
             
             # 转换数据格式
@@ -279,9 +278,9 @@ class ScorePersistenceService:
                     AND expire_date IS NOT NULL 
                     AND expire_date <= %s
                     AND expire_date > %s
+                    ORDER BY expire_date ASC
                 """,
-                params=(user_id, future_date, datetime.now()),
-                order_by="expire_date ASC"
+                params=(user_id, future_date, datetime.now())
             )
             
             # 按过期日期分组
@@ -385,10 +384,8 @@ class ScorePersistenceService:
             # 获取用户当前等级（从最新记录）
             latest_record = POSTGRES_POOL.select_data(
                 table_name="user_scores",
-                conditions="user_id = %s",
-                params=(user_id,),
-                order_by="created_at DESC",
-                limit=1
+                conditions="user_id = %s ORDER BY created_at DESC LIMIT 1",
+                params=(user_id,)
             )
             
             current_tier = latest_record[0]['tier_level'] if latest_record else 'Bronze'
