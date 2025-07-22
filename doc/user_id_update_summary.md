@@ -2,7 +2,7 @@
 
 ## 完成情况
 
-### 1. ✅ apple_healthkit表已有user_id列
+### 1. ✅ health_metric表已有user_id列
 - 数据库表结构已包含`user_id`列，类型为`character varying(255)`
 - 默认值为`'default_user'`
 - 已创建索引：`idx_user_id`和`idx_user_date`
@@ -53,4 +53,4 @@ python scripts/test_api_endpoints.py
 
 ## 总结
 
-系统已经完全支持多用户功能，`apple_healthkit`表的`user_id`列已经存在并被正确使用。所有查询和接口都已更新以支持用户数据隔离。
+系统已经完全支持多用户功能，`health_metric`表的`user_id`列已经存在并被正确使用。所有查询和接口都已更新以支持用户数据隔离。

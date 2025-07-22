@@ -13,7 +13,7 @@ from src.db.configs.global_config import POSTGRES_CONFIG
 
 
 def add_user_id_column():
-    """添加user_id字段到apple_healthkit表"""
+    """添加user_id字段到health_metric表"""
     print("开始数据库迁移：添加user_id字段")
     
     conn = psycopg2.connect(
@@ -30,7 +30,7 @@ def add_user_id_column():
             cursor.execute("""
                 SELECT column_name 
                 FROM information_schema.columns 
-                WHERE table_name = 'apple_healthkit' 
+                WHERE table_name = 'health_metric' 
                 AND column_name = 'user_id'
             """)
             
@@ -41,20 +41,20 @@ def add_user_id_column():
             # 添加user_id字段
             print("添加user_id字段...")
             cursor.execute("""
-                ALTER TABLE apple_healthkit 
+                ALTER TABLE health_metric 
                 ADD COLUMN user_id VARCHAR(255) DEFAULT 'default_user'
             """)
             
             # 创建索引以提高查询性能
             print("创建user_id索引...")
             cursor.execute("""
-                CREATE INDEX idx_user_id ON apple_healthkit(user_id)
+                CREATE INDEX idx_user_id ON health_metric(user_id)
             """)
             
             # 创建复合索引用于用户+日期查询
             print("创建复合索引...")
             cursor.execute("""
-                CREATE INDEX idx_user_date ON apple_healthkit(user_id, start_date)
+                CREATE INDEX idx_user_date ON health_metric(user_id, start_date)
             """)
             
             conn.commit()
@@ -64,7 +64,7 @@ def add_user_id_column():
             cursor.execute("""
                 SELECT column_name, data_type 
                 FROM information_schema.columns 
-                WHERE table_name = 'apple_healthkit' 
+                WHERE table_name = 'health_metric' 
                 AND column_name = 'user_id'
             """)
             

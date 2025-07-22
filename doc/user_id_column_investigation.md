@@ -3,7 +3,7 @@
 ## 发现的情况
 
 ### 1. 当前状态
-`apple_healthkit`表中**已经存在**`user_id`列：
+`health_metric`表中**已经存在**`user_id`列：
 - 类型：`character varying(255)`
 - 默认值：`'default_user'`
 - 相关索引：`idx_user_id`和`idx_user_date`
@@ -20,7 +20,7 @@ user_id字段已存在，跳过迁移
 #### 原始表创建脚本
 在`scripts/import_csv_to_db.py`中的CREATE TABLE语句**没有**包含`user_id`列：
 ```sql
-CREATE TABLE IF NOT EXISTS apple_healthkit (
+CREATE TABLE IF NOT EXISTS health_metric (
     id SERIAL PRIMARY KEY,
     type VARCHAR(255) NOT NULL,
     source_name VARCHAR(255),
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS apple_healthkit (
 
 1. `user_id`列确实存在，功能正常
 2. `add_user_id_migration.py`脚本的设计是正确的 - 它会检查列是否存在，避免重复添加
-3. 所有使用`apple_healthkit`表的代码都正确地使用了`user_id`列
+3. 所有使用`health_metric`表的代码都正确地使用了`user_id`列
 
 ## 建议
 

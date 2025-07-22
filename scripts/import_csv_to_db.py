@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-创建apple_healthkit表并从CSV文件导入数据
+创建health_metric表并从CSV文件导入数据
 """
 import pandas as pd
 import psycopg2
@@ -9,8 +9,8 @@ from configs.global_config import POSTGRES_CONFIG
 from datetime import datetime
 
 def create_table():
-    """创建apple_healthkit表"""
-    print("创建apple_healthkit表...")
+    """创建health_metric表"""
+    print("创建health_metric表...")
     
     conn = psycopg2.connect(
         dbname=POSTGRES_CONFIG.dbname,
@@ -24,7 +24,7 @@ def create_table():
         with conn.cursor() as cursor:
             # 创建表
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS apple_healthkit (
+                CREATE TABLE IF NOT EXISTS health_metric (
                     id SERIAL PRIMARY KEY,
                     type VARCHAR(255) NOT NULL,
                     source_name VARCHAR(255),
@@ -40,9 +40,9 @@ def create_table():
             """)
             
             # 创建索引以提高查询性能
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_type ON apple_healthkit(type);")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_start_date ON apple_healthkit(start_date);")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_end_date ON apple_healthkit(end_date);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_type ON health_metric(type);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_start_date ON health_metric(start_date);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_end_date ON health_metric(end_date);")
             
             conn.commit()
             print("✅ 表创建成功!")
@@ -105,7 +105,7 @@ def import_csv_data(csv_file):
                 
                 # 批量插入
                 cursor.executemany("""
-                    INSERT INTO apple_healthkit 
+                    INSERT INTO health_metric 
                     (type, source_name, source_version, unit, creation_date, 
                      start_date, end_date, value, device)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -118,14 +118,14 @@ def import_csv_data(csv_file):
             print(f"\n✅ 成功导入 {total_inserted} 条记录!")
             
             # 验证导入结果
-            cursor.execute("SELECT COUNT(*) FROM apple_healthkit;")
+            cursor.execute("SELECT COUNT(*) FROM health_metric;")
             count = cursor.fetchone()[0]
             print(f"数据库中现有 {count} 条记录")
             
             # 显示数据类型统计
             cursor.execute("""
                 SELECT type, COUNT(*) as count 
-                FROM apple_healthkit 
+                FROM health_metric 
                 GROUP BY type 
                 ORDER BY count DESC 
                 LIMIT 10;

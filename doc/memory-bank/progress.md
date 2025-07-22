@@ -197,10 +197,10 @@ python scripts/test_api_endpoints.py
 
 ### 数据库状态
 - 表：
-  - apple_healthkit（健康数据，含user_id）
+  - health_metric（健康数据，含user_id）
   - users（用户信息，含level和total_points）
   - user_scores（用户积分记录）
-- 记录数：84,552（apple_healthkit）
+- 记录数：84,552（health_metric）
 - 索引：完整的查询优化索引
 
 ### 环境要求

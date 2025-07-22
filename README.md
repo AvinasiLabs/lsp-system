@@ -169,14 +169,14 @@ from src.db.postgresql import POSTGRES_POOL
 
 # 查询数据
 data = POSTGRES_POOL.select_data(
-    table_name="apple_healthkit",
+    table_name="health_metric",
     conditions="type = %s",
     params=("HKQuantityTypeIdentifierStepCount",)
 )
 
 # 插入数据
 POSTGRES_POOL.insert_data(
-    table_name="apple_healthkit",
+    table_name="health_metric",
     columns=["type", "value", "unit", "start_date"],
     values=("StepCount", "10000", "count", "2025-07-18")
 )

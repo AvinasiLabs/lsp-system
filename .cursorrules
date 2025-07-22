@@ -80,7 +80,7 @@ from src.db.postgresql import POSTGRES_POOL
 
 # 查询示例
 data = POSTGRES_POOL.select_data(
-    table_name="apple_healthkit",
+    table_name="health_metric",
     conditions="type = %s AND start_date >= %s",
     params=(data_type, start_date)
 )
