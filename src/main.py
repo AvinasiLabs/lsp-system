@@ -107,7 +107,7 @@ async def internal_error_handler(request, exc):
     """500错误处理"""
     logger.error(f"内部服务器错误: {exc}")
     return JSONResponse(
-        status_code=500, content={"error": "Internal server error", "message": "服务器内部错误，请稍后重试"}
+        status_code=200, content={"error": "Internal server error", "message": "服务器内部错误，请稍后重试"}
     )
 
 
