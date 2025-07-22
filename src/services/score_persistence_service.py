@@ -176,6 +176,17 @@ class ScorePersistenceService:
                 params=(user_id, as_of_date)
             )
             
+            # 检查数据是否为空
+            if data is None or len(data) == 0:
+                # 用户没有积分数据，返回0分
+                return {
+                    'user_id': user_id,
+                    'total_valid_score': 0,
+                    'dimension_scores': {},
+                    'as_of_date': as_of_date.isoformat(),
+                    'record_count': 0
+                }
+            
             # 汇总积分
             total_score = 0
             dimension_scores = {}

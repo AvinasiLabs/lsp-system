@@ -216,9 +216,11 @@ class PostgreSQLConnectionPool:
 
         logger.debug(f"Attempting to select: {sql_query}, params: {params}")
         if fetch_one:
-            return self._execute_query(sql_query, params, fetch_one=True)
+            result = self._execute_query(sql_query, params, fetch_one=True)
+            return result if result is not None else None
         else:
-            return self._execute_query(sql_query, params, fetch_all=True)
+            result = self._execute_query(sql_query, params, fetch_all=True)
+            return result if result is not None else []
 
     def update_data(self, table_name, set_clause, conditions, params):
         """
