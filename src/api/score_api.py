@@ -97,12 +97,15 @@ async def get_valid_scores(
         result = persistence_service.get_user_valid_scores(user_id, as_of)
 
         if "error" in result:
-            raise HTTPException(status_code=200, detail=result["error"])
+            logger.error(f"获取有效积分失败: {result['error']}")
+            raise HTTPException(status_code=500, detail=result["error"])
 
         return ValidScoreResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"获取有效积分失败: {e}")
-        raise HTTPException(status_code=200, detail="获取有效积分失败")
+        raise HTTPException(status_code=500, detail=f"获取有效积分失败: {str(e)}")
 
 
 @router.get("/history", response_model=List[ScoreHistoryItem])
@@ -138,7 +141,7 @@ async def get_score_history(
         raise
     except Exception as e:
         logger.error(f"获取积分历史失败: {e}")
-        raise HTTPException(status_code=200, detail="获取积分历史失败")
+        raise HTTPException(status_code=500, detail=f"获取积分历史失败: {str(e)}")
 
 
 @router.get("/expiring", response_model=ExpiringScoreResponse)
@@ -155,12 +158,15 @@ async def get_expiring_scores(
         result = persistence_service.get_expiring_scores(user_id, days_ahead)
 
         if "error" in result:
-            raise HTTPException(status_code=200, detail=result["error"])
+            logger.error(f"获取即将过期积分失败: {result['error']}")
+            raise HTTPException(status_code=500, detail=result["error"])
 
         return ExpiringScoreResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"获取即将过期积分失败: {e}")
-        raise HTTPException(status_code=200, detail="获取即将过期积分失败")
+        raise HTTPException(status_code=500, detail=f"获取即将过期积分失败: {str(e)}")
 
 
 @router.get("/tier-stats", response_model=TierStatsResponse)
@@ -178,12 +184,15 @@ async def get_tier_statistics(user_id: str = Depends(get_user_id)):
         result = persistence_service.get_user_tier_stats(user_id)
 
         if "error" in result:
-            raise HTTPException(status_code=200, detail=result["error"])
+            logger.error(f"获取等级统计失败: {result['error']}")
+            raise HTTPException(status_code=500, detail=result["error"])
 
         return TierStatsResponse(**result)
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"获取等级统计失败: {e}")
-        raise HTTPException(status_code=200, detail="获取等级统计失败")
+        raise HTTPException(status_code=500, detail=f"获取等级统计失败: {str(e)}")
 
 
 @router.post("/check-expiration", response_model=ExpirationCheckResponse)
@@ -205,7 +214,7 @@ async def check_and_mark_expired():
         )
     except Exception as e:
         logger.error(f"检查过期积分失败: {e}")
-        raise HTTPException(status_code=200, detail="检查过期积分失败")
+        raise HTTPException(status_code=500, detail=f"检查过期积分失败: {str(e)}")
 
 
 @router.get("/summary/{year}/{month}")
@@ -263,4 +272,4 @@ async def get_monthly_summary(
 
     except Exception as e:
         logger.error(f"获取月度汇总失败: {e}")
-        raise HTTPException(status_code=200, detail="获取月度汇总失败")
+        raise HTTPException(status_code=500, detail=f"获取月度汇总失败: {str(e)}")

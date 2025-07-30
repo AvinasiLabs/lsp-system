@@ -176,8 +176,20 @@ class ScorePersistenceService:
                 params=(user_id, as_of_date)
             )
             
-            # 检查数据是否为空
-            if data is None or len(data) == 0:
+            # 检查数据是否为空或查询失败
+            if data is None:
+                # 数据库查询失败
+                logger.error("数据库查询返回None，可能是连接池问题")
+                return {
+                    'user_id': user_id,
+                    'total_valid_score': 0,
+                    'dimension_scores': {},
+                    'as_of_date': as_of_date.isoformat(),
+                    'record_count': 0,
+                    'error': '数据库连接失败'
+                }
+            
+            if len(data) == 0:
                 # 用户没有积分数据，返回0分
                 return {
                     'user_id': user_id,
@@ -244,6 +256,11 @@ class ScorePersistenceService:
                 params=params
             )
             
+            # 检查查询结果
+            if data is None:
+                logger.error("数据库查询返回None，可能是连接池问题")
+                return []
+            
             # 转换数据格式
             history = []
             for record in data:
@@ -293,6 +310,17 @@ class ScorePersistenceService:
                 """,
                 params=(user_id, future_date, datetime.now())
             )
+            
+            # 检查查询结果
+            if data is None:
+                logger.error("数据库查询返回None，可能是连接池问题")
+                return {
+                    'user_id': user_id,
+                    'days_ahead': days_ahead,
+                    'total_expiring_score': 0,
+                    'expiring_by_date': [],
+                    'error': '数据库连接失败'
+                }
             
             # 按过期日期分组
             expiring_by_date = {}
@@ -399,7 +427,15 @@ class ScorePersistenceService:
                 params=(user_id,)
             )
             
-            current_tier = latest_record[0]['tier_level'] if latest_record else 'Bronze'
+            # 检查查询结果
+            if latest_record is None:
+                logger.error("数据库查询返回None，可能是连接池问题")
+                return {
+                    'user_id': user_id,
+                    'error': '数据库连接失败'
+                }
+            
+            current_tier = latest_record[0]['tier_level'] if latest_record and len(latest_record) > 0 else 'Bronze'
             
             # 获取累计总积分（包括过期的）
             all_scores = POSTGRES_POOL.select_data(
@@ -408,7 +444,15 @@ class ScorePersistenceService:
                 params=(user_id,)
             )
             
-            total_earned = sum(record['score'] for record in all_scores)
+            # 检查查询结果
+            if all_scores is None:
+                logger.error("数据库查询返回None，可能是连接池问题")
+                return {
+                    'user_id': user_id,
+                    'error': '数据库连接失败'
+                }
+            
+            total_earned = sum(record['score'] for record in all_scores) if all_scores else 0
             
             # 获取当前有效积分
             valid_scores = self.get_user_valid_scores(user_id)
