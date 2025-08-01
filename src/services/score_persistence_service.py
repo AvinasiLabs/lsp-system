@@ -23,6 +23,32 @@ class ScorePersistenceService:
         "Ambassador": None # 永不过期
     }
     
+    # user_scores表的字段顺序（用于元组到字典的转换）
+    USER_SCORES_COLUMNS = [
+        'id', 'user_id', 'score_date', 'dimension', 'difficulty', 
+        'score', 'details', 'created_at', 'expire_date', 'is_expired',
+        'tier_level', 'sub_category'
+    ]
+    
+    @staticmethod
+    def _get_field_value(record, field_name, field_index=None):
+        """
+        安全地从记录中获取字段值，支持字典和元组格式
+        
+        Args:
+            record: 数据记录（字典或元组）
+            field_name: 字段名（用于字典访问）
+            field_index: 字段索引（用于元组访问）
+            
+        Returns:
+            字段值
+        """
+        if isinstance(record, dict):
+            return record.get(field_name)
+        elif isinstance(record, (tuple, list)) and field_index is not None:
+            return record[field_index] if len(record) > field_index else None
+        return None
+    
     def __init__(self):
         """初始化服务"""
         pass
@@ -204,8 +230,18 @@ class ScorePersistenceService:
             dimension_scores = {}
             
             for record in data:
-                dimension = record['dimension']
-                score = record['score']
+                # 处理字典或元组格式的数据
+                if isinstance(record, dict):
+                    dimension = record['dimension']
+                    score = record['score']
+                elif isinstance(record, (tuple, list)):
+                    # 假设字段顺序：id, user_id, score_date, dimension, difficulty, score, ...
+                    # dimension是第4个字段（索引3），score是第6个字段（索引5）
+                    dimension = record[3]
+                    score = record[5]
+                else:
+                    logger.warning(f"未知的记录格式: {type(record)}")
+                    continue
                 
                 if dimension not in dimension_scores:
                     dimension_scores[dimension] = 0
@@ -264,18 +300,23 @@ class ScorePersistenceService:
             # 转换数据格式
             history = []
             for record in data:
+                # 安全地获取字段值
+                score_date = self._get_field_value(record, 'score_date', 2)
+                expire_date = self._get_field_value(record, 'expire_date', 8)
+                created_at = self._get_field_value(record, 'created_at', 7)
+                
                 history.append({
-                    'id': record['id'],
-                    'date': record['score_date'].isoformat(),
-                    'dimension': record['dimension'],
-                    'sub_category': record.get('sub_category'),
-                    'difficulty': record['difficulty'],
-                    'score': record['score'],
-                    'expire_date': record['expire_date'].isoformat() if record['expire_date'] else None,
-                    'is_expired': record['is_expired'],
-                    'tier_level': record.get('tier_level', 'Bronze'),
-                    'details': record.get('details', {}),
-                    'created_at': record['created_at'].isoformat()
+                    'id': self._get_field_value(record, 'id', 0),
+                    'date': score_date.isoformat() if score_date else None,
+                    'dimension': self._get_field_value(record, 'dimension', 3),
+                    'sub_category': self._get_field_value(record, 'sub_category', 11),
+                    'difficulty': self._get_field_value(record, 'difficulty', 4),
+                    'score': self._get_field_value(record, 'score', 5),
+                    'expire_date': expire_date.isoformat() if expire_date else None,
+                    'is_expired': self._get_field_value(record, 'is_expired', 9),
+                    'tier_level': self._get_field_value(record, 'tier_level', 10) or 'Bronze',
+                    'details': self._get_field_value(record, 'details', 6) or {},
+                    'created_at': created_at.isoformat() if created_at else None
                 })
             
             return history
@@ -327,7 +368,12 @@ class ScorePersistenceService:
             total_expiring = 0
             
             for record in data:
-                expire_date = record['expire_date'].date()
+                # 安全地获取字段值
+                expire_date_val = self._get_field_value(record, 'expire_date', 8)
+                if not expire_date_val:
+                    continue
+                    
+                expire_date = expire_date_val.date()
                 if expire_date not in expiring_by_date:
                     expiring_by_date[expire_date] = {
                         'date': expire_date.isoformat(),
@@ -335,13 +381,17 @@ class ScorePersistenceService:
                         'total': 0
                     }
                 
+                dimension = self._get_field_value(record, 'dimension', 3)
+                score = self._get_field_value(record, 'score', 5)
+                score_date = self._get_field_value(record, 'score_date', 2)
+                
                 expiring_by_date[expire_date]['scores'].append({
-                    'dimension': record['dimension'],
-                    'score': record['score'],
-                    'earned_date': record['score_date'].isoformat()
+                    'dimension': dimension,
+                    'score': score,
+                    'earned_date': score_date.isoformat() if score_date else None
                 })
-                expiring_by_date[expire_date]['total'] += record['score']
-                total_expiring += record['score']
+                expiring_by_date[expire_date]['total'] += score
+                total_expiring += score
             
             return {
                 'user_id': user_id,
@@ -452,7 +502,13 @@ class ScorePersistenceService:
                     'error': '数据库连接失败'
                 }
             
-            total_earned = sum(record['score'] for record in all_scores) if all_scores else 0
+            # 安全地计算总积分
+            total_earned = 0
+            if all_scores:
+                for record in all_scores:
+                    score = self._get_field_value(record, 'score', 5)
+                    if score is not None:
+                        total_earned += score
             
             # 获取当前有效积分
             valid_scores = self.get_user_valid_scores(user_id)
