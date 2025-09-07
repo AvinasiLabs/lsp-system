@@ -1,0 +1,238 @@
+{
+  "summary": {
+    "total_tests": 38,
+    "passed_tests": 38,
+    "failed_tests": 0,
+    "pass_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test_name": "维度配置: sleep",
+      "passed": true,
+      "message": "配置存在，总分: 17000",
+      "timestamp": "2025-09-07T13:55:19.395006"
+    },
+    {
+      "test_name": "维度配置: exercise",
+      "passed": true,
+      "message": "配置存在，总分: 21480",
+      "timestamp": "2025-09-07T13:55:19.395016"
+    },
+    {
+      "test_name": "维度配置: diet",
+      "passed": true,
+      "message": "配置存在，总分: 1000",
+      "timestamp": "2025-09-07T13:55:19.395018"
+    },
+    {
+      "test_name": "维度配置: mental",
+      "passed": true,
+      "message": "配置存在，总分: 4000",
+      "timestamp": "2025-09-07T13:55:19.395019"
+    },
+    {
+      "test_name": "获取最高分函数",
+      "passed": true,
+      "message": "睡眠易难度最高分: 1000 (期望: 1000)",
+      "timestamp": "2025-09-07T13:55:19.395021"
+    },
+    {
+      "test_name": "百分比计算: 500/sleep/easy",
+      "passed": true,
+      "message": "结果: 50.0%, 期望: 50.0%",
+      "timestamp": "2025-09-07T13:55:19.395029"
+    },
+    {
+      "test_name": "百分比计算: 1000/sleep/easy",
+      "passed": true,
+      "message": "结果: 100.0%, 期望: 100.0%",
+      "timestamp": "2025-09-07T13:55:19.395031"
+    },
+    {
+      "test_name": "百分比计算: 0/sleep/easy",
+      "passed": true,
+      "message": "结果: 0.0%, 期望: 0.0%",
+      "timestamp": "2025-09-07T13:55:19.395033"
+    },
+    {
+      "test_name": "百分比计算: 1500/sleep/easy",
+      "passed": true,
+      "message": "结果: 150.0%, 期望: 150.0%",
+      "timestamp": "2025-09-07T13:55:19.395036"
+    },
+    {
+      "test_name": "配置完整性: sleep.easy",
+      "passed": true,
+      "message": "配置: 1000",
+      "timestamp": "2025-09-07T13:55:19.395039"
+    },
+    {
+      "test_name": "配置完整性: sleep.medium",
+      "passed": true,
+      "message": "配置: 2000",
+      "timestamp": "2025-09-07T13:55:19.395040"
+    },
+    {
+      "test_name": "配置完整性: sleep.hard",
+      "passed": true,
+      "message": "配置: 4000",
+      "timestamp": "2025-09-07T13:55:19.395042"
+    },
+    {
+      "test_name": "配置完整性: sleep.super_hard",
+      "passed": true,
+      "message": "配置: 10000",
+      "timestamp": "2025-09-07T13:55:19.395043"
+    },
+    {
+      "test_name": "配置完整性: sleep.total",
+      "passed": true,
+      "message": "配置: 17000",
+      "timestamp": "2025-09-07T13:55:19.395044"
+    },
+    {
+      "test_name": "总分一致性: sleep",
+      "passed": true,
+      "message": "计算总分: 17000, 配置总分: 17000",
+      "timestamp": "2025-09-07T13:55:19.395047"
+    },
+    {
+      "test_name": "配置完整性: exercise.easy",
+      "passed": true,
+      "message": "配置: 2780",
+      "timestamp": "2025-09-07T13:55:19.395048"
+    },
+    {
+      "test_name": "配置完整性: exercise.medium",
+      "passed": true,
+      "message": "配置: 3200",
+      "timestamp": "2025-09-07T13:55:19.395049"
+    },
+    {
+      "test_name": "配置完整性: exercise.hard",
+      "passed": true,
+      "message": "配置: 3500",
+      "timestamp": "2025-09-07T13:55:19.395050"
+    },
+    {
+      "test_name": "配置完整性: exercise.super_hard",
+      "passed": true,
+      "message": "配置: 12000",
+      "timestamp": "2025-09-07T13:55:19.395051"
+    },
+    {
+      "test_name": "配置完整性: exercise.total",
+      "passed": true,
+      "message": "配置: 21480",
+      "timestamp": "2025-09-07T13:55:19.395053"
+    },
+    {
+      "test_name": "总分一致性: exercise",
+      "passed": true,
+      "message": "计算总分: 21480, 配置总分: 21480",
+      "timestamp": "2025-09-07T13:55:19.395054"
+    },
+    {
+      "test_name": "配置完整性: diet.easy",
+      "passed": true,
+      "message": "配置: 1000",
+      "timestamp": "2025-09-07T13:55:19.395056"
+    },
+    {
+      "test_name": "配置完整性: diet.medium",
+      "passed": true,
+      "message": "配置: 0",
+      "timestamp": "2025-09-07T13:55:19.395057"
+    },
+    {
+      "test_name": "配置完整性: diet.hard",
+      "passed": true,
+      "message": "配置: 0",
+      "timestamp": "2025-09-07T13:55:19.395058"
+    },
+    {
+      "test_name": "配置完整性: diet.super_hard",
+      "passed": true,
+      "message": "配置: 0",
+      "timestamp": "2025-09-07T13:55:19.395059"
+    },
+    {
+      "test_name": "配置完整性: diet.total",
+      "passed": true,
+      "message": "配置: 1000",
+      "timestamp": "2025-09-07T13:55:19.395060"
+    },
+    {
+      "test_name": "总分一致性: diet",
+      "passed": true,
+      "message": "计算总分: 1000, 配置总分: 1000",
+      "timestamp": "2025-09-07T13:55:19.395062"
+    },
+    {
+      "test_name": "配置完整性: mental.easy",
+      "passed": true,
+      "message": "配置: 1000",
+      "timestamp": "2025-09-07T13:55:19.395063"
+    },
+    {
+      "test_name": "配置完整性: mental.medium",
+      "passed": true,
+      "message": "配置: 3000",
+      "timestamp": "2025-09-07T13:55:19.395064"
+    },
+    {
+      "test_name": "配置完整性: mental.hard",
+      "passed": true,
+      "message": "配置: 0",
+      "timestamp": "2025-09-07T13:55:19.395065"
+    },
+    {
+      "test_name": "配置完整性: mental.super_hard",
+      "passed": true,
+      "message": "配置: 0",
+      "timestamp": "2025-09-07T13:55:19.395066"
+    },
+    {
+      "test_name": "配置完整性: mental.total",
+      "passed": true,
+      "message": "配置: 4000",
+      "timestamp": "2025-09-07T13:55:19.395068"
+    },
+    {
+      "test_name": "总分一致性: mental",
+      "passed": true,
+      "message": "计算总分: 4000, 配置总分: 4000",
+      "timestamp": "2025-09-07T13:55:19.395069"
+    },
+    {
+      "test_name": "边界情况: 零分数",
+      "passed": true,
+      "message": "处理成功，结果: 0.0",
+      "timestamp": "2025-09-07T13:55:19.395073"
+    },
+    {
+      "test_name": "边界情况: 负分数",
+      "passed": true,
+      "message": "处理成功，结果: -10.0",
+      "timestamp": "2025-09-07T13:55:19.395075"
+    },
+    {
+      "test_name": "边界情况: 极大分数",
+      "passed": true,
+      "message": "处理成功，结果: 99999.9",
+      "timestamp": "2025-09-07T13:55:19.395078"
+    },
+    {
+      "test_name": "边界情况: 不存在的维度",
+      "passed": true,
+      "message": "处理成功，结果: 0",
+      "timestamp": "2025-09-07T13:55:19.395081"
+    },
+    {
+      "test_name": "边界情况: 不存在的难度",
+      "passed": true,
+      "message": "处理成功，结果: 0",
+      "timestamp": "2025-09-07T13:55:19.395083"
+    }
+  ]
+}

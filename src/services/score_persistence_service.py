@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 from ..db.postgresql import POSTGRES_POOL
 from ..models.health_data import DifficultyLevel
+from ..core.score_config import calculate_percentage
 from ..utils.logger import logger
 import json
 
@@ -228,6 +229,7 @@ class ScorePersistenceService:
             # 汇总积分
             total_score = 0
             dimension_scores = {}
+            dimension_percentages = {}  # 新增：百分比数据
             
             for record in data:
                 # 处理字典或元组格式的数据
@@ -248,10 +250,16 @@ class ScorePersistenceService:
                 dimension_scores[dimension] += score
                 total_score += score
             
+            # 计算各维度的百分比
+            for dimension, score in dimension_scores.items():
+                percentage = calculate_percentage(score, dimension, 'total')
+                dimension_percentages[dimension] = percentage
+            
             return {
                 'user_id': user_id,
                 'total_valid_score': total_score,
                 'dimension_scores': dimension_scores,
+                'dimension_percentages': dimension_percentages,  # 新增：百分比数据
                 'as_of_date': as_of_date.isoformat(),
                 'record_count': len(data)
             }

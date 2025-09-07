@@ -33,6 +33,7 @@ class ValidScoreResponse(BaseModel):
     user_id: str
     total_valid_score: int
     dimension_scores: dict
+    dimension_percentages: dict  # 新增：各维度百分比
     as_of_date: str
     record_count: int
 
@@ -227,6 +228,8 @@ async def get_monthly_summary(
     按维度统计指定月份的积分情况
     """
     try:
+        from ..core.score_config import calculate_percentage
+        
         # 计算月份的开始和结束日期
         start_date = datetime(year, month, 1)
         if month == 12:
@@ -239,6 +242,7 @@ async def get_monthly_summary(
 
         # 按维度汇总
         dimension_summary = {}
+        dimension_percentages = {}  # 新增：百分比数据
         total_score = 0
         days_with_scores = set()
 
@@ -260,6 +264,18 @@ async def get_monthly_summary(
             dimension_summary[dimension]["by_difficulty"][difficulty] += score
             total_score += score
             days_with_scores.add(record["date"])
+        
+        # 计算各维度的百分比
+        for dimension, data in dimension_summary.items():
+            total_percentage = calculate_percentage(data["total"], dimension, "total")
+            difficulty_percentages = {}
+            for diff, score in data["by_difficulty"].items():
+                difficulty_percentages[diff] = calculate_percentage(score, dimension, diff)
+            
+            dimension_percentages[dimension] = {
+                "total": total_percentage,
+                "by_difficulty": difficulty_percentages
+            }
 
         return {
             "user_id": user_id,
@@ -268,6 +284,7 @@ async def get_monthly_summary(
             "total_score": total_score,
             "active_days": len(days_with_scores),
             "dimension_summary": dimension_summary,
+            "dimension_percentages": dimension_percentages,  # 新增：百分比数据
         }
 
     except Exception as e:

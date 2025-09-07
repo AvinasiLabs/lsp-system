@@ -11,6 +11,7 @@ from .calculators.sleep_calculator import SleepCalculator
 from .calculators.exercise_calculator import ExerciseCalculator
 from .calculators.diet_calculator import DietCalculator
 from .calculators.mental_calculator import MentalCalculator
+from .score_config import calculate_percentage, DIMENSION_MAX_SCORES
 from ..utils.logger import logger
 from ..db.postgresql import POSTGRES_POOL
 
@@ -64,11 +65,16 @@ class ScoreEngine:
         
         # 计算各维度积分
         dimension_scores = {}
+        dimension_percentages = {}  # 新增：百分比数据
         total_score = 0
         
         for dimension, calculator in self.calculators.items():
             # 计算基础积分
-            scores = calculator.calculate(health_summary)
+            # 为睡眠计算器传递额外参数
+            if dimension == ScoreDimension.SLEEP:
+                scores = calculator.calculate(health_summary, user_id=user_id, date=date)
+            else:
+                scores = calculator.calculate(health_summary)
             
             # 检查连锁惩罚
             punishment = calculator.check_chain_punishment(history_data)
@@ -81,6 +87,17 @@ class ScoreEngine:
             
             dimension_scores[dimension.value] = scores
             total_score += scores['total']
+            
+            # 计算百分比
+            dimension_name = dimension.value
+            percentages = {
+                'easy': calculate_percentage(scores['easy'], dimension_name, 'easy'),
+                'medium': calculate_percentage(scores['medium'], dimension_name, 'medium'),
+                'hard': calculate_percentage(scores['hard'], dimension_name, 'hard'),
+                'super_hard': calculate_percentage(scores['super_hard'], dimension_name, 'super_hard'),
+                'total': calculate_percentage(scores['total'], dimension_name, 'total')
+            }
+            dimension_percentages[dimension_name] = percentages
         
         # 构建结果
         result = {
@@ -88,6 +105,7 @@ class ScoreEngine:
             'date': date.isoformat(),
             'health_summary': health_summary.model_dump(),
             'dimension_scores': dimension_scores,
+            'dimension_percentages': dimension_percentages,  # 新增：百分比数据
             'total_score': total_score,
             'user_level': user_tier,
             'timestamp': datetime.now().isoformat()
