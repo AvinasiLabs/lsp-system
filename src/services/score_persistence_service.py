@@ -211,6 +211,7 @@ class ScorePersistenceService:
                     'user_id': user_id,
                     'total_valid_score': 0,
                     'dimension_scores': {},
+                    'dimension_percentages': {},
                     'as_of_date': as_of_date.isoformat(),
                     'record_count': 0,
                     'error': '数据库连接失败'
@@ -222,6 +223,7 @@ class ScorePersistenceService:
                     'user_id': user_id,
                     'total_valid_score': 0,
                     'dimension_scores': {},
+                    'dimension_percentages': {},
                     'as_of_date': as_of_date.isoformat(),
                     'record_count': 0
                 }
@@ -270,6 +272,7 @@ class ScorePersistenceService:
                 'user_id': user_id,
                 'total_valid_score': 0,
                 'dimension_scores': {},
+                'dimension_percentages': {},
                 'error': str(e)
             }
     
